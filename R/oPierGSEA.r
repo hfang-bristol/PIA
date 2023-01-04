@@ -35,9 +35,9 @@
 #' pNode <- oPierGenes(data=data, network="PCommonsDN_medium",restart=0.7)
 #' 
 #' # c) do pathway-level priority using GSEA
-#' eGSEA <- oPierGSEA(pNode=pNode, ontology="DGIdb", nperm=2000, RData.location=RData.location)
-#' bp <- xGSEAbarplot(eGSEA, top_num="auto", displayBy="nes")
-#' gp <- xGSEAdotplot(eGSEA, top=1)
+#' eGSEA <- oPierGSEA(pNode=pNode, ontology="DGIdb", nperm=2000, placeholder=placeholder)
+#' bp <- oGSEAbarplot(eGSEA, top_num="auto", displayBy="nes")
+#' gp <- oGSEAdotplot(eGSEA, top=1)
 #' }
 
 oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=c(10,500), type=c("simple","multilevel"), weight=1, nperm=NULL, verbose=TRUE, silent=FALSE)

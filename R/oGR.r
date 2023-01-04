@@ -27,7 +27,7 @@
 #' data <- paste(chr,':',start,'-',end, sep='')
 #'
 #' # b) create a GRanges object
-#' GR <- oGR(data=data, format="chr:start-end", RData.location=RData.location)
+#' GR <- oGR(data=data, format="chr:start-end", placeholder=placeholder)
 #' }
 
 oGR <- function(data, format=c("chr:start-end","data.frame","bed","GRanges"), build.conversion=c(NA,"hg38.to.hg19","hg18.to.hg19"), add.name=TRUE, remove.mcol=FALSE, include.strand=FALSE, verbose=TRUE, placeholder=NULL, guid=NULL)

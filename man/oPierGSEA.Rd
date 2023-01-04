@@ -99,9 +99,9 @@ pNode <- oPierGenes(data=data, network="PCommonsDN_medium",restart=0.7)
 
 # c) do pathway-level priority using GSEA
 eGSEA <- oPierGSEA(pNode=pNode, ontology="DGIdb", nperm=2000,
-RData.location=RData.location)
-bp <- xGSEAbarplot(eGSEA, top_num="auto", displayBy="nes")
-gp <- xGSEAdotplot(eGSEA, top=1)
+placeholder=placeholder)
+bp <- oGSEAbarplot(eGSEA, top_num="auto", displayBy="nes")
+gp <- oGSEAdotplot(eGSEA, top=1)
 }
 }
 \seealso{

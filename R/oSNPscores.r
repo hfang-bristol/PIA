@@ -24,7 +24,6 @@
 #' @seealso \code{\link{oSNPscores}}
 #' @include oSNPscores.r
 #' @examples
-#'
 #' \dontrun{
 #' # a) provide the seed SNPs with the significance info
 #' ## get lead SNPs reported in AS GWAS and their significance info (p-values)
