@@ -182,9 +182,9 @@ oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL,
 		if(is.null(xlab)){
 			if(leading.edge.only){
 				if(x.scale=='log'){
-					xlab <- "Target ranks (log-scaled) at the leading edge"
+					xlab <- "Target ranks (log-scaled) at the leading prioritisation"
 				}else{
-					xlab <- "Target ranks at the leading edge"
+					xlab <- "Target ranks at the leading prioritisation"
 				}
 				
 			}else{
