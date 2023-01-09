@@ -61,8 +61,5 @@ Collate:
      'oPierSubnet.r'
      'oSubneterGenes.r'
      'oSEAballoon.r'
-     'oBiproject.r'
-     'oAttack.r'
-     'oUpsetAdv.r'
 License: GPL-2
 biocViews: SystemsBiology, FunctionalGenomics, GenePrediction, GeneTarget, Pathways, Network
