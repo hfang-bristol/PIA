@@ -42,13 +42,13 @@ BiocManager::install(c('remotes','tidyverse'), dependencies=T)
 BiocManager::install("hfang-bristol/PIA", dependencies=T, force=T)
 
 # check the package 'PIA' successfully installed
-library(PIA)
+library(help=PIA)
 ```
 
 
 ## @ Showcase
 
-> A showcase describing a step-by-step protocol on how to genetic targets and repurposed drugs for asthma is made available and reproducible [`here`](http://www.genetictargets.pro/PIA/showcase).
+> A showcase describing step-by-step instructions is made reproducible [`here`](http://www.genetictargets.com/PIA/showcase).
 
 
 ## @ Contact
