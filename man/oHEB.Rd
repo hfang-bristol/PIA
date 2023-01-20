@@ -85,7 +85,7 @@ gp +
 scale_size_continuous(limits=c(0,15),range=c(0,3),guide=guide_legend("Node\ndegree"))
 # edge color legend
 gp + guides(color='none') + scale_edge_colour_gradientn(limits=c(0,50),
-colors=oBigraph('white-black')(64),
+colors=oColormap('white-black')(64),
 guide=guide_edge_colorbar("Link\nscore",barwidth=unit(8,'pt')))
 }
 }

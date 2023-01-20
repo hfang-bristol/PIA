@@ -2,13 +2,13 @@ Package: PIA
 Type: Package
 Title: Priority Index for Asthma
 Version: 1.0.0
-Date: 2023-1-12
+Date: 2023-1-20
 Authors@R: c(person("Hai", "Fang", email="fh12355@rjh.com.cn", role=c("aut","cre")))
 Maintainer: Hai Fang <fh12355@rjh.com.cn>
 Depends: R (>= 4.2.0), igraph, ggplot2
 Imports: BiocGenerics, dplyr, forcats, GenomicRanges, ggnetwork, ggrepel, IRanges, magrittr, Matrix, methods, osfr, purrr, readr, stats, stringr, tibble, tidyr, XML, pbapply, curl, ggraph
 Suggests: coin, foreach, ggridges, grid, gridExtra, RColorBrewer, ROCR, ggupset, rtracklayer, Gviz, MASS, dnet, graphics, grDevices, S4Vectors, utils, ggbio, GenomeInfoDb, doParallel, fgsea, scales, supraHex, data.tree, jsonlite
-Description: The PIA package is developed in parallels with a shift from genetic findings to translational applications for asthma. It features a genetics-led target prioritisation and a crosstalk-based drug repurposing.
+Description: The PIA package is developed in parallels with a shift from genetic findings to translational applications for asthma. It features genetics-led and network-driven integrative prioritisation, an improvement to the priority index (Pi) approach.
 Collate:
 	 'ClassMethod-PIA.r'
      'oRDS.r'

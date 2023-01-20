@@ -2,8 +2,7 @@
 
 ## @ Overview
 
-> The `PIA` is an R package enabling genomics-led target prioritisation and crosstalk-based drug repurposing for asthma.
-
+> The `PIA` is an R package enabling a genetics-led and network-driven integrative prioritisation for asthma.
 
 ## @ Installation
 

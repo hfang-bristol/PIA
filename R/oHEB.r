@@ -38,7 +38,7 @@
 #' # node size legend
 #' gp + scale_size_continuous(limits=c(0,15),range=c(0,3),guide=guide_legend("Node\ndegree"))
 #' # edge color legend
-#' gp + guides(color='none') + scale_edge_colour_gradientn(limits=c(0,50), colors=oBigraph('white-black')(64), guide=guide_edge_colorbar("Link\nscore",barwidth=unit(8,'pt')))
+#' gp + guides(color='none') + scale_edge_colour_gradientn(limits=c(0,50), colors=oColormap('white-black')(64), guide=guide_edge_colorbar("Link\nscore",barwidth=unit(8,'pt')))
 #' }
 
 oHEB <- function(g, leave.label.size=3, leave.label.color="black", leave.label.wrap=NULL, leave.label.expansion=1.1, leave.size=NULL, limit.expansion=1.2, edge.tension=0.8, edge.alpha=0.8, edge.width=0.8, edge.palette=NULL)
@@ -119,7 +119,7 @@ oHEB <- function(g, leave.label.size=3, leave.label.color="black", leave.label.w
 		df_vertices <- data.frame(name=unique(c(df_hierarchy$from, df_hierarchy$to)), stringsAsFactors=F)
 		## df_vertices$community
 		ind <- match(df_vertices$name, df_hierarchy$to)
-		df_vertices$community <- df_hierarchy$from[ind]
+		df_vertices$community <- df_hierarchy$from[ind]	
 		## df_vertices$size
 		ind <- match(df_vertices$name, df_nodes$name)
 		df_vertices$size <- df_nodes$size[ind]
@@ -160,6 +160,7 @@ oHEB <- function(g, leave.label.size=3, leave.label.color="black", leave.label.w
 		gp <- ggraph::ggraph(ig_hierarchy, layout='dendrogram', circular=TRUE)
 		## edge weight
 		if(!is.null(df_edges$weight) & length(unique(df_edges$weight))>1){
+			#gp <- gp + ggraph::geom_conn_bundle(data=ggraph::get_con(from=df_vertices$name[from], to=df_vertices$name[to], value=df_edges$weight), aes(colour=value), alpha=edge.alpha, width=edge.width, tension=edge.tension)
 			gp <- gp + ggraph::geom_conn_bundle(data=ggraph::get_con(from=from, to=to, value=df_edges$weight), aes(colour=value), alpha=edge.alpha, width=edge.width, tension=edge.tension)
 			
 			if(is.null(edge.palette)){
