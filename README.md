@@ -2,7 +2,7 @@
 
 ## @ Overview
 
-> The `PIA` is an R package enabling a genetics-led and network-driven integrative prioritisation for asthma.
+> The `PIA` is an R package enabling genetics-led and network-driven drug target prioritisation for asthma.
 
 ## @ Installation
 
@@ -47,7 +47,7 @@ library(help=PIA)
 
 ## @ Showcase
 
-> A showcase describing step-by-step instructions is made reproducible [`here`](http://www.genetictargets.com/PIA/showcase).
+> A showcase describing step-by-step instructions on how to identify shared and distinct drug targets for adult- and childhood-onset asthma is made reproducible [`here`](http://www.genetictargets.com/PIA/showcase).
 
 
 ## @ Contact
