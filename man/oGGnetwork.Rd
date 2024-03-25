@@ -11,7 +11,7 @@ label.wrap.width = NULL,
 label.wrap.lineheight = 0.8,
 node.label.size = NULL,
 node.label.fontface = "plain",
-node.label.color = "steelblue4",
+node.label.color = "black",
 node.label.alpha = 0.9,
 node.label.padding = 1,
 node.label.arrow = 0.01,
@@ -29,11 +29,11 @@ na.color = "grey80",
 node.color.alpha = 0.9,
 node.size = NULL,
 node.size.title = NULL,
-node.size.range = c(1, 4),
+node.size.range = c(2, 5),
 slim = NULL,
 title = "",
 edge.size = 0.5,
-edge.color = "black",
+edge.color = "steelblue4",
 edge.color.alpha = 0.5,
 edge.curve = 0.1,
 edge.arrow = 2,
@@ -105,7 +105,7 @@ default color palette). Alternatively, any hyphen-separated HTML color
 names, e.g. "lightyellow-orange" (by default), "blue-black-yellow",
 "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of
 standard color names can be found in
-\url{http://html-color-codes.info/color-names}}
+\url{https://html-color-codes.info/color-names/index.html}}
 
 \item{ncolors}{the number of colors specified over the colormap}
 
@@ -219,7 +219,7 @@ sum(x$max_phase>=0))
 dag_ig <- igraph::induced.subgraph(dag,
 vids=which(V(dag)$num_approved>=20))
 # (optional) further restricted to the direct children of the root
-root <- dnet::dDAGroot(dag_ig)
+root <- oDAGroot(dag_ig)
 neighs.out <- igraph::neighborhood(dag_ig, order=1, nodes=root,
 mode="out")
 nodeInduced <- V(dag_ig)[unique(unlist(neighs.out))]$name

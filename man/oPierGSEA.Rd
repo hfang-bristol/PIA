@@ -12,6 +12,8 @@ size.range = c(10, 500),
 type = c("simple", "multilevel"),
 weight = 1,
 nperm = NULL,
+p.adjust.method = c("BH", "BY", "bonferroni", "holm", "hochberg",
+"hommel"),
 verbose = TRUE,
 silent = FALSE
 )
@@ -43,6 +45,15 @@ over-weighted, and so on}
 gene-score associations will be permutated so that permutation of
 gene-term associations is realised}
 
+\item{p.adjust.method}{the method used to adjust p-values. It can be
+one of "BH", "BY", "bonferroni", "holm", "hochberg" and "hommel". The
+first two methods "BH" (widely used) and "BY" control the false
+discovery rate (FDR: the expected proportion of false discoveries
+amongst the rejected hypotheses); the last four methods "bonferroni",
+"holm", "hochberg" and "hommel" are designed to give strong control of
+the family-wise error rate (FWER). Notes: FDR is a less stringent
+condition than FWER}
+
 \item{verbose}{logical to indicate whether the messages will be
 displayed in the screen. By default, it sets to true}
 
@@ -53,7 +64,7 @@ forced to be false}
 \value{
 an object of class "eGSEA", a list with following components:
 \itemize{
-\item{\code{df_summary}: a data frame of nTerm x 9 containing gene set
+\item{\code{df_summary}: a data frame of nTerm x 12 containing gene set
 enrichment analysis result, where nTerm is the number of
 terms/genesets, and the 9 columns are "setID" (i.e. "Term ID"), "nAnno"
 (i.e. number in members annotated by a term), "nLead" (i.e. number in
@@ -62,7 +73,8 @@ members as leading genes), "peak" (i.e. the rank at peak), "total"
 score), "nes" (i.e. normalised enrichment score; enrichment score but
 after being normalised by gene set size), "pvalue" (i.e. nominal p
 value), "adjp" (i.e. adjusted p value; p value but after being adjusted
-for multiple comparisons)}
+for multiple comparisons), "frac" (nLead/nAnno), "member" (members at
+the leading edge), and "member_rank" (members and their ranks)}
 \item{\code{leading}: a list of gene sets, each storing leading gene
 info (i.e. the named vector with names for gene symbols and elements
 for priority rank). Always, gene sets are identified by "setID"}

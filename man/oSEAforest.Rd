@@ -10,7 +10,7 @@ top = 10,
 adjp.cutoff = 0.05,
 colormap = "brewer.Reds",
 zlim = NULL,
-color.title = "-log10(adjP)",
+color.title = expression(-log[10]("FDR")),
 shape = 18,
 size.range = c(0, 1),
 slim = NULL,
@@ -42,7 +42,7 @@ red-yellow-green-cyan-blue-magenta). Alternatively, any
 hyphen-separated HTML color names, e.g. "blue-black-yellow",
 "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of
 standard color names can be found in
-\url{http://html-color-codes.info/color-names}}
+\url{https://html-color-codes.info/color-names/index.html}}
 
 \item{zlim}{the minimum and maximum z values for which colors should be
 plotted, defaulting to the range of the -log10(adjp)}

@@ -7,20 +7,20 @@
 oGSEAdotplot(
 eGSEA,
 top = 1,
-colormap = "lightblue-darkblue",
+colormap = "spectral",
 zlim = NULL,
 ncolors = 64,
 xlab = NULL,
 title = c("setID", "none"),
 subtitle = c("leading", "enrichment", "both", "none"),
-clab = "Pi rating",
+clab = "Priority\\nrating",
 x.scale = c("normal", "sqrt", "log"),
 peak = TRUE,
-peak.color = "red",
+peak.color = "black",
 leading = FALSE,
-leading.size = 2,
+leading.size = 2.5,
 leading.color = "steelblue4",
-leading.alpha = 0.9,
+leading.alpha = 1,
 leading.padding = 0.2,
 leading.arrow = 0.01,
 leading.force = 0.01,
@@ -30,7 +30,6 @@ leading.edge.only = FALSE,
 leading.label.direction = c("none", "left"),
 compact = FALSE,
 font.family = "sans",
-signature = TRUE,
 ...
 )
 }
@@ -49,7 +48,7 @@ red-yellow-green-cyan-blue-magenta). Alternatively, any
 hyphen-separated HTML color names, e.g. "blue-black-yellow",
 "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of
 standard color names can be found in
-\url{http://html-color-codes.info/color-names}}
+\url{https://html-color-codes.info/color-names/index.html}}
 
 \item{zlim}{the minimum and maximum z values for which colors should be
 plotted}
@@ -112,13 +111,13 @@ used. If TRUE, axes and legend info will be hidden}
 
 \item{font.family}{the font family for texts}
 
-\item{signature}{logical to indicate whether the signature is assigned
-to the plot caption. By default, it sets TRUE showing which function is
-used to draw this graph}
-
 \item{...}{additional paramters associated with
 ggrepel::geom_text_repel. If queried, it has high priority (eg,
 color='darkred',size=2,alpha=0.6,fontface='bold')}
+
+\item{signature}{logical to indicate whether the signature is assigned
+to the plot caption. By default, it sets TRUE showing which function is
+used to draw this graph}
 }
 \value{
 an object of class "ggplot" or a list of "ggplot" objects.

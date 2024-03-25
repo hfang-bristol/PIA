@@ -9,12 +9,13 @@
 #' @param type It can be 'simple' or 'multilevel'
 #' @param weight an integer specifying score weight. It can be "0" for unweighted (an equivalent to Kolmogorov-Smirnov, only considering the rank), "1" for weighted by input gene score (by default), and "2" for over-weighted, and so on
 #' @param nperm the number of random permutations. For each permutation, gene-score associations will be permutated so that permutation of gene-term associations is realised
+#' @param p.adjust.method the method used to adjust p-values. It can be one of "BH", "BY", "bonferroni", "holm", "hochberg" and "hommel". The first two methods "BH" (widely used) and "BY" control the false discovery rate (FDR: the expected proportion of false discoveries amongst the rejected hypotheses); the last four methods "bonferroni", "holm", "hochberg" and "hommel" are designed to give strong control of the family-wise error rate (FWER). Notes: FDR is a less stringent condition than FWER
 #' @param verbose logical to indicate whether the messages will be displayed in the screen. By default, it sets to true
 #' @param silent logical to indicate whether the messages will be silent completely. By default, it sets to false. If true, verbose will be forced to be false
 #' @return
 #' an object of class "eGSEA", a list with following components:
 #' \itemize{
-#'  \item{\code{df_summary}: a data frame of nTerm x 9 containing gene set enrichment analysis result, where nTerm is the number of terms/genesets, and the 9 columns are "setID" (i.e. "Term ID"), "nAnno" (i.e. number in members annotated by a term), "nLead" (i.e. number in members as leading genes), "peak" (i.e. the rank at peak), "total" (i.e. the total number of genes analysed), "es" (i.e. enrichment score), "nes" (i.e. normalised enrichment score; enrichment score but after being normalised by gene set size), "pvalue" (i.e. nominal p value), "adjp" (i.e. adjusted p value; p value but after being adjusted for multiple comparisons)}
+#'  \item{\code{df_summary}: a data frame of nTerm x 12 containing gene set enrichment analysis result, where nTerm is the number of terms/genesets, and the 9 columns are "setID" (i.e. "Term ID"), "nAnno" (i.e. number in members annotated by a term), "nLead" (i.e. number in members as leading genes), "peak" (i.e. the rank at peak), "total" (i.e. the total number of genes analysed), "es" (i.e. enrichment score), "nes" (i.e. normalised enrichment score; enrichment score but after being normalised by gene set size), "pvalue" (i.e. nominal p value), "adjp" (i.e. adjusted p value; p value but after being adjusted for multiple comparisons), "frac" (nLead/nAnno), "member" (members at the leading edge), and "member_rank" (members and their ranks)}
 #'  \item{\code{leading}: a list of gene sets, each storing leading gene info (i.e. the named vector with names for gene symbols and elements for priority rank). Always, gene sets are identified by "setID"}
 #'  \item{\code{full}: a list of gene sets, each storing full info on gene set enrichment analysis result (i.e. a data frame of nGene x 6, where nGene is the number of genes, and the 6 columns are "GeneID", "Rank" for priority rank, "Score" for priority score, "RES" for running enrichment score,  "Hits" for gene set hits info with 1 for gene hit, 2 for leading gene hit, 3 for the point defining leading genes, 0 for no hit). Always, gene sets are identified by "setID"}
 #'  \item{\code{cross}: a matrix of nTerm X nTerm, with an on-diagnal cell for the leading genes observed in an individaul term, and off-diagnal cell for the overlapped leading genes shared between two terms}
@@ -40,7 +41,7 @@
 #' gp <- oGSEAdotplot(eGSEA, top=1)
 #' }
 
-oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=c(10,500), type=c("simple","multilevel"), weight=1, nperm=NULL, verbose=TRUE, silent=FALSE)
+oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=c(10,500), type=c("simple","multilevel"), weight=1, nperm=NULL, p.adjust.method=c("BH","BY","bonferroni","holm","hochberg","hommel"), verbose=TRUE, silent=FALSE)
 {
     startT <- Sys.time()
     if(!silent){
@@ -53,16 +54,31 @@ oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=
     
     ## match.arg matches arg against a table of candidate values as specified by choices, where NULL means to take the first one
     type <- match.arg(type)
-    
+    p.adjust.method <- match.arg(p.adjust.method)
+
     weight <- as.integer(weight)
     
     if(is(pNode,"pNode")){
-        df_priority <- pNode$priority[, c("seed","weight","priority","rank")]
+    	if(is(pNode$priority,"tbl")){
+    		name1 <- NULL
+    		df_priority <- pNode$priority %>% dplyr::mutate(name1=name) %>% tibble::column_to_rownames('name1')
+    	}else{
+    		df_priority <- pNode$priority
+    	}
+        df_priority <- df_priority[, c("name","seed","weight","priority","rank")]      
+        
     }else if(is(pNode,"sTarget") | is(pNode,"dTarget")){
-    	df_priority <- pNode$priority[, c("name","rank","rating")]
+    	if(is(pNode$priority,"tbl")){
+    		name1 <- NULL
+    		df_priority <- pNode$priority %>% dplyr::mutate(name1=name) %>% tibble::column_to_rownames('name1')
+    	}else{
+    		df_priority <- pNode$priority
+    	}
+    	df_priority <- df_priority[, c("name","rank","rating")]
     	df_priority$priority <- df_priority$rating
-    }else if(is(pNode,"data.frame")){
-    	df_priority <- pNode[,c(1:2)]
+
+	}else if(is(pNode,"data.frame")){
+    	df_priority <- pNode[,c(1:2)] %>% as.data.frame()
     	colnames(df_priority) <- c("priority","rank")
     }else{
     	stop("The function must apply to a 'pNode' or 'sTarget' or 'dTarget' object.\n")
@@ -259,6 +275,10 @@ oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=
 	## append "term_name" and "term_distance"
 	summary <- tibble::tibble(setID=res$setID, nAnno=res$setSize, nLead=res$nLead, peak=res$peak, total=rep(nrow(df_priority),length(res$peak)), es=res$ES, nes=res$nES, pvalue=res$pvalue, adjp=res$adjp)
 	
+	## adjust p-values
+	pvalue <- NULL
+	summary <- summary %>% dplyr::mutate(adjp=stats::p.adjust(pvalue, method=p.adjust.method))
+	
 	## scientific notation
 	summary$es <- signif(summary$es, digits=3)
 	summary$nes <- signif(summary$nes, digits=3)
@@ -282,6 +302,20 @@ oPierGSEA <- function(pNode, priority.top=NULL, customised.genesets, size.range=
 		diag(cross) <- sapply(leadingGenes, length)
     }
     ####################################################################################
+	
+	# summary_leading
+	if(1){
+		## df_summary
+		nLead <- nAnno <- setID <- name <- value <- lead_member <- NULL
+		df_summary <- summary %>% dplyr::mutate(frac=nLead/nAnno)
+		
+		## df_leading
+		df_leading <- leadingGenes[df_summary %>% pull(setID)] %>% tibble::enframe() %>% dplyr::transmute(setID=name, member=value) %>% dplyr::mutate(member_rank=purrr::map_chr(member, function(x) stringr::str_c(names(x),' (',x,')', collapse=', ')))
+		
+		## df_summary_leading
+		df_summary_leading <- df_summary %>% dplyr::inner_join(df_leading, by='setID')
+		summary <- df_summary_leading
+	}
 	
     eGSEA <- list(df_summary = summary,
     			  leading = leadingGenes,

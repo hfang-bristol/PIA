@@ -1,6 +1,6 @@
 #' Function to prioritise genes given a list of seed SNPs together with the significance level (e.g. GWAS reported p-values)
 #'
-#' \code{oPierSNPs} is supposed to prioritise genes given a list of seed SNPs together with the significance level. To prioritise genes, it first defines and scores seed genes: nearby genes, eQTL genes and Hi-C genes. With seed genes and their scores, it then uses Random Walk with Restart (RWR) to calculate the affinity score of all nodes in the input graph to the seed genes. The priority score is the affinity score. Parallel computing is also supported for Linux-like or Windows operating systems. It returns an object of class "pNode".
+#' \code{oPierSNPs} is supposed to prioritise genes given a list of seed SNPs together with the significance level. To prioritise genes, it first defines and scores seed genes: nearby genes, eQTL genes and Hi-C genes. With seed genes and their scores, it then uses Random Walk with Restart (RWR) to calculate the affinity score of all nodes in the input graph to the seed genes. The priority score is the affinity score. It returns an object of class "pNode".
 #'
 #' @param data a named input vector containing the sinificance level for nodes (dbSNP). For this named vector, the element names are dbSNP ID (or in the format such as 'chr16:28525386'), the element values for the significance level (measured as p-value or fdr). Alternatively, it can be a matrix or data frame with two columns: 1st column for dbSNP, 2nd column for the significance level
 #' @param include.LD additional SNPs in LD with Lead SNPs are also included. By default, it is 'NA' to disable this option. Otherwise, LD SNPs will be included based on one or more of 26 populations and 5 super populations from 1000 Genomics Project data (phase 3). The population can be one of 5 super populations ("AFR", "AMR", "EAS", "EUR", "SAS"), or one of 26 populations ("ACB", "ASW", "BEB", "CDX", "CEU", "CHB", "CHS", "CLM", "ESN", "FIN", "GBR", "GIH", "GWD", "IBS", "ITU", "JPT", "KHV", "LWK", "MSL", "MXL", "PEL", "PJL", "PUR", "STU", "TSI", "YRI"). Explanations for population code can be found at \url{http://www.1000genomes.org/faq/which-populations-are-part-your-study}
@@ -28,8 +28,6 @@
 #' @param normalise the way to normalise the adjacency matrix of the input graph. It can be 'laplacian' for laplacian normalisation, 'row' for row-wise normalisation, 'column' for column-wise normalisation, or 'none'
 #' @param restart the restart probability used for Random Walk with Restart (RWR). The restart probability takes the value from 0 to 1, controlling the range from the starting nodes/seeds that the walker will explore. The higher the value, the more likely the walker is to visit the nodes centered on the starting nodes. At the extreme when the restart probability is zero, the walker moves freely to the neighbors at each step without restarting from seeds, i.e., following a random walk (RW)
 #' @param normalise.affinity.matrix the way to normalise the output affinity matrix. It can be 'none' for no normalisation, 'quantile' for quantile normalisation to ensure that columns (if multiple) of the output affinity matrix have the same quantiles
-#' @param parallel logical to indicate whether parallel computation with multicores is used. By default, it sets to true, but not necessarily does so. Partly because parallel backends available will be system-specific (now only Linux or Mac OS). Also, it will depend on whether these two packages "foreach" and "doMC" have been installed
-#' @param multicores an integer to specify how many cores will be registered as the multicore parallel backend to the 'foreach' package. If NULL, it will use a half of cores available in a user's computer. This option only works when parallel computation is enabled
 #' @param verbose logical to indicate whether the messages will be displayed in the screen. By default, it sets to true for display
 #' @param placeholder the characters to tell the location of built-in RData files. See \code{\link{oRDS}} for details
 #' @param guid a valid (5-character) Global Unique IDentifier for an OSF project. See \code{\link{oRDS}} for details
@@ -77,7 +75,7 @@
 #' #dev.off()
 #' }
 
-oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, significance.threshold=5e-5, score.cap=10, distance.max=2000, decay.kernel=c("slow","constant","linear","rapid"), decay.exponent=2, GR.SNP=c("dbSNP_GWAS","dbSNP_Common","dbSNP_Single"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), include.TAD=c("none","GM12878","IMR90","MSC","TRO","H1","MES","NPC"), include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=c("empirical","exponential"), relative.importance=c(1/3,1/3,1/3), scoring.scheme=c("max","sum","sequential"), network=c("STRING_highest","STRING_high","STRING_medium","STRING_low","PCommonsUN_high","PCommonsUN_medium","PCommonsDN_high","PCommonsDN_medium","PCommonsDN_Reactome","PCommonsDN_KEGG","PCommonsDN_HumanCyc","PCommonsDN_PID","PCommonsDN_PANTHER","PCommonsDN_ReconX","PCommonsDN_TRANSFAC","PCommonsDN_PhosphoSite","PCommonsDN_CTD", "KEGG","KEGG_metabolism","KEGG_genetic","KEGG_environmental","KEGG_cellular","KEGG_organismal","KEGG_disease","REACTOME"), STRING.only=c(NA,"neighborhood_score","fusion_score","cooccurence_score","coexpression_score","experimental_score","database_score","textmining_score")[1], weighted=FALSE, network.customised=NULL, seeds.inclusive=TRUE, normalise=c("laplacian","row","column","none"), restart=0.7, normalise.affinity.matrix=c("none","quantile"), parallel=TRUE, multicores=NULL, verbose=TRUE, placeholder=NULL, guid=NULL)
+oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, significance.threshold=5e-8, score.cap=100, distance.max=20000, decay.kernel=c("constant","slow","linear","rapid"), decay.exponent=2, GR.SNP=c("dbSNP_Common","dbSNP_GWAS","dbSNP_Single"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), include.TAD=c("none","GM12878","IMR90","MSC","TRO","H1","MES","NPC"), include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=c("empirical","exponential"), relative.importance=c(1/3,1/3,1/3), scoring.scheme=c("max","sum","sequential"), network=c("STRING_highest","STRING_high","STRING_medium","STRING_low","PCommonsUN_high","PCommonsUN_medium","PCommonsDN_high","PCommonsDN_medium","PCommonsDN_Reactome","PCommonsDN_KEGG","PCommonsDN_HumanCyc","PCommonsDN_PID","PCommonsDN_PANTHER","PCommonsDN_ReconX","PCommonsDN_TRANSFAC","PCommonsDN_PhosphoSite","PCommonsDN_CTD", "KEGG","KEGG_metabolism","KEGG_genetic","KEGG_environmental","KEGG_cellular","KEGG_organismal","KEGG_disease","REACTOME"), STRING.only=c(NA,"neighborhood_score","fusion_score","cooccurence_score","coexpression_score","experimental_score","database_score","textmining_score")[1], weighted=FALSE, network.customised=NULL, seeds.inclusive=TRUE, normalise=c("laplacian","row","column","none"), restart=0.7, normalise.affinity.matrix=c("none","quantile"), verbose=TRUE, placeholder=NULL, guid=NULL)
 {
 
     startT <- Sys.time()
@@ -149,7 +147,7 @@ oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signif
     }
     
     if(relative.importance[2] != 0){
-		df_eGenes <- oSNP2eGenes(data=df_SNP$SNP, include.QTL=include.QTL, QTL.customised=QTL.customised, cdf.function=cdf.function, verbose=verbose, placeholder=placeholder, guid=guid)
+		df_eGenes <- oSNP2eGenes(data=df_SNP$SNP, include.QTL=include.QTL, QTL.customised=QTL.customised, GR.Gene=GR.Gene, cdf.function=cdf.function, verbose=verbose, placeholder=placeholder, guid=guid)
 	}else{
 		df_eGenes <- NULL
 		
@@ -174,7 +172,7 @@ oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signif
     }
     
     if(relative.importance[3] != 0){
-		df_cGenes <- oSNP2cGenes(data=df_SNP$SNP, entity="SNP", include.RGB=include.RGB, GR.SNP=GR.SNP, cdf.function=cdf.function, verbose=verbose, placeholder=placeholder, guid=guid)
+		df_cGenes <- oSNP2cGenes(data=df_SNP$SNP, entity="SNP", include.RGB=include.RGB, GR.SNP=GR.SNP, GR.Gene=GR.Gene, cdf.function=cdf.function, verbose=verbose, placeholder=placeholder, guid=guid)
 	}else{
 		df_cGenes <- NULL
 		
@@ -287,7 +285,7 @@ oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signif
         message(sprintf("#######################################################"))
     }
     
-	pNode <- suppressMessages(oPierGenes(data=seeds.genes, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose, placeholder=placeholder, guid=guid))
+	pNode <- suppressMessages(oPierGenes(data=seeds.genes, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, GR.Gene=GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid))
 	
 	if(verbose){
         message(sprintf("#######################################################"))
@@ -356,7 +354,6 @@ oPierSNPs <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signif
     pNode[['nGenes']] <- nGenes
     pNode[['eGenes']] <- eGenes
     pNode[['cGenes']] <- cGenes
-
 	
     ####################################################################################
     endT <- Sys.time()

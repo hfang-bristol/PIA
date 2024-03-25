@@ -4,7 +4,7 @@
 #'
 #' @param eGSEA an object of class "eGSEA"
 #' @param top the number of the top enrichments to be visualised. Alternatively, the gene set names can be queried
-#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), and "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta). Alternatively, any hyphen-separated HTML color names, e.g. "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{http://html-color-codes.info/color-names}
+#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), and "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta). Alternatively, any hyphen-separated HTML color names, e.g. "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{https://html-color-codes.info/color-names/index.html}
 #' @param zlim the minimum and maximum z values for which colors should be plotted
 #' @param ncolors the number of colors specified over the colormap
 #' @param xlab the label for x-axis. If NULL, it is 'Target ranks'
@@ -45,8 +45,8 @@
 #' grid.arrange(grobs=ls_gp, ncol=2)
 #' }
 
-oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL, ncolors=64, xlab=NULL, title=c('setID','none'), subtitle=c('leading','enrichment','both','none'), clab='Pi rating', x.scale=c("normal","sqrt","log"), peak=TRUE, peak.color='red', leading=FALSE, leading.size=2, leading.color='steelblue4', leading.alpha=0.9, leading.padding=0.2, leading.arrow=0.01, leading.force=0.01, leading.query=NULL, leading.query.only=FALSE, leading.edge.only=FALSE, leading.label.direction=c("none","left"), compact=FALSE, font.family="sans", signature=TRUE, ...)
-{
+oGSEAdotplot <- function(eGSEA, top=1, colormap="spectral", zlim=NULL, ncolors=64, xlab=NULL, title=c('setID','none'), subtitle=c('leading','enrichment','both','none'), clab='Priority\nrating', x.scale=c("normal","sqrt","log"), peak=TRUE, peak.color='black', leading=FALSE, leading.size=2.5, leading.color='steelblue4', leading.alpha=1, leading.padding=0.2, leading.arrow=0.01, leading.force=0.01, leading.query=NULL, leading.query.only=FALSE, leading.edge.only=FALSE, leading.label.direction=c("none","left"), compact=FALSE, font.family="sans", ...)
+{3
 	
 	x.scale <- match.arg(x.scale)
 	title <- match.arg(title)
@@ -148,18 +148,18 @@ oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL,
 			}
 			
 			if(is.null(df_genes_query)){
-				if(leading.label.direction=='no'){
+				if(leading.label.direction=='none'){
 					bp <- bp + ggrepel::geom_text_repel(data=df_genes, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), force=leading.force, max.overlaps=Inf, ...)
 				}else{
-					bp <- bp + ggrepel::geom_text_repel(data=df_genes, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), max.overlaps=Inf, direction="y", hjust=0, nudge_x=-1*df_genes$Rank, ...)
+					bp <- bp + ggrepel::geom_text_repel(data=df_genes, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), max.overlaps=Inf, direction="y", hjust=0, nudge_x=-1*df_genes$Rank-0.05*df_leading$Rank, ...)
 				}
 				
 			}else{
 				if(leading.query.only){
-					if(leading.label.direction=='no'){
+					if(leading.label.direction=='none'){
 						bp <- bp + ggrepel::geom_text_repel(data=df_genes_query, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), force=leading.force, max.overlaps=Inf, ...)
 					}else{
-						bp <- bp + ggrepel::geom_text_repel(data=df_genes_query, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), max.overlaps=Inf, direction="y", hjust=0, nudge_x=-1*df_genes_query$Rank, ...)
+						bp <- bp + ggrepel::geom_text_repel(data=df_genes_query, aes(x=Rank,y=RES,label=GeneID), lineheight=0.8, size=leading.size, color=leading.color, alpha=leading.alpha, fontface='italic', box.padding=unit(0.5,"lines"), point.padding=unit(leading.padding,"lines"), segment.color='grey80', segment.alpha=0.5, segment.size=0.2, arrow=arrow(length=unit(leading.arrow,'npc')), max.overlaps=Inf, direction="y", hjust=0, nudge_x=-1*df_genes_query$Rank-0.05*df_leading$Rank, ...)
 					}
 					
 				}else{
@@ -174,11 +174,11 @@ oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL,
 		}
 		
 		if(peak){
-			bp <- bp + geom_point(data=df_leading, aes(x=Rank, y=RES), colour=peak.color, alpha=1, size=1) + geom_segment(data=df_leading, aes(xend=Rank,yend=0), size=0.5, colour=peak.color, linetype="solid") 
+			bp <- bp + geom_point(data=df_leading, aes(x=Rank, y=RES), colour=peak.color, alpha=1, size=1) + geom_segment(data=df_leading, aes(xend=Rank,yend=0), linewidth=0.5, colour=peak.color, linetype="solid") 
 			#bp <- bp + ggrepel::geom_text_repel(data=df_leading, aes(x=Rank,y=RES,label=leading_info), size=2, color='blue', alpha=0.8, fontface='bold.italic')
 		}
 		
-		bp <- bp  + theme_bw() + theme(legend.position="right", legend.title=element_text(color="black",face="italic",size=8), axis.title.y=element_text(color="black"), axis.title.x=element_text(color="black"), panel.border=element_blank(), panel.grid.minor=element_blank(), panel.grid.major=element_blank())
+		bp <- bp  + theme_bw() + theme(legend.position="right", legend.title=element_text(color="black",face="bold",size=9), axis.title.y=element_text(color="black"), axis.title.x=element_text(color="black"), panel.border=element_blank(), panel.grid.minor=element_blank(), panel.grid.major=element_blank())
 		if(is.null(xlab)){
 			if(leading.edge.only){
 				if(x.scale=='log'){
@@ -224,16 +224,11 @@ oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL,
 			subtitle <- ''
 		}
 		if(subtitle!=''){
-			bp <- bp + labs(title=title, subtitle=subtitle) + theme(plot.title=element_text(hjust=0.5,size=10), plot.subtitle=element_text(hjust=0.5,,size=8))
+			bp <- bp + labs(title=title, subtitle=subtitle) + theme(plot.title=element_text(hjust=0.5,size=10), plot.subtitle=element_text(hjust=0.5,size=8))
 		}else{
 			if(!is.na(title)){
 				bp <- bp + labs(title=title) + theme(plot.title=element_text(hjust=0.5,size=12))
 			}
-		}
-		## caption
-		if(signature){
-			caption <- paste("Created by oGSEAdotplot from Pi version", utils ::packageVersion("Pi"))
-			bp <- bp + labs(caption=caption) + theme(plot.caption=element_text(hjust=1,face='bold.italic',size=8,colour='#002147'))
 		}
 	
 		## x scale
@@ -251,7 +246,8 @@ oGSEAdotplot <- function(eGSEA, top=1, colormap="lightblue-darkblue", zlim=NULL,
 		bp <- bp + theme(text=element_text(family=font.family))
 
 		## put arrows on x- and y-axis
-		gp <- bp + theme(axis.line.x=element_line(arrow=arrow(angle=30,length=unit(0.25,"cm"), type="open")), axis.line.y=element_line(arrow=arrow(angle=30,length=unit(0.25,"cm"), type="open")))
+		#gp <- bp + theme(axis.line.x=element_line(arrow=arrow(angle=30,length=unit(0.25,"cm"), type="open")), axis.line.y=element_line(arrow=arrow(angle=30,length=unit(0.25,"cm"), type="open")))
+		gp <- bp + theme(axis.line.x=element_line(), axis.line.y=element_line())
 		
 		# whether is compact
 		if(compact){

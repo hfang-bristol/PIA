@@ -5,7 +5,7 @@
 #' @param obj an object of class "eSET" or "eSAD". Alterntively, it can be a tibble having all these columns (named as 'name','adjp','or','CIl','CIu'); optionally ('group', 'namespace', 'onto', 'nO')
 #' @param top the number of the top terms (sorted according to OR). For the "eSET" object, if it is 'auto' (for eSET), only the significant terms (see below adjp.cutoff) will be displayed
 #' @param adjp.cutoff FDR cutoff used to declare the significant terms. By default, it is set to 0.05. Only works when top is 'auto' above
-#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), and "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta). Alternatively, any hyphen-separated HTML color names, e.g. "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{http://html-color-codes.info/color-names}
+#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), and "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta). Alternatively, any hyphen-separated HTML color names, e.g. "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{https://html-color-codes.info/color-names/index.html}
 #' @param zlim the minimum and maximum z values for which colors should be plotted, defaulting to the range of the -log10(adjp)
 #' @param color.title the legend title for colorbar
 #' @param shape the point shape
@@ -26,7 +26,7 @@
 #' obj %>% oSEAextract() %>% filter(onto=='PSG') %>% oSEAforest()
 #' }
 
-oSEAforest <- function(obj, top=10, adjp.cutoff=0.05,  colormap="brewer.Reds", zlim=NULL, color.title="-log10(adjP)", shape=18, size.range=c(0,1), slim=NULL, size.title="Overlap", wrap.width=NULL, legend.direction=c("auto","horizontal","vertical"), sortBy=c("or","none"))
+oSEAforest <- function(obj, top=10, adjp.cutoff=0.05,  colormap="brewer.Reds", zlim=NULL, color.title=expression(-log[10]("FDR")), shape=18, size.range=c(0,1), slim=NULL, size.title="Overlap", wrap.width=NULL, legend.direction=c("auto","horizontal","vertical"), sortBy=c("or","none"))
 {
     
 	## match.arg matches arg against a table of candidate values as specified by choices, where NULL means to take the first one
@@ -133,7 +133,7 @@ oSEAforest <- function(obj, top=10, adjp.cutoff=0.05,  colormap="brewer.Reds", z
 	df %>% ggplot(aes(y=name, x=log2(or), xmin=log2(CIl), xmax=log2(CIu), color=color)) + geom_pointrange(aes(size=size),shape=shape) -> gp
 	#gp + geom_vline(xintercept=0, color='grey80') -> gp
 	
-	gp <- gp + xlab(expression(log[2]("Odds ratio")))
+	gp <- gp + xlab(expression(log[2]("odds ratio")))
 	
 	gp <- gp + theme_classic() + theme(legend.position="right", legend.title=element_text(size=7), legend.text=element_text(size=6), axis.title.y=element_blank(), axis.title.x=element_text(size=7), axis.text.y=element_text(size=6,angle=0), axis.text.x=element_text(size=7))
 	gp <- gp + theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank())

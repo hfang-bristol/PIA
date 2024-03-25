@@ -6,6 +6,7 @@
 #' @param entity the data entity. By default, it is "SNP". For general use, it can also be one of "chr:start-end", "data.frame", "bed" or "GRanges"
 #' @param include.RGB genes linked to input SNPs are also included. By default, it is 'NA' to disable this option. Otherwise, those genes linked to SNPs will be included according to Promoter Capture HiC (PCHiC) datasets. Pre-built HiC datasets are detailed in \code{\link{oDefineRGB}}
 #' @param GR.SNP the genomic regions of SNPs. By default, it is 'dbSNP_GWAS', that is, SNPs from dbSNP (version 146) restricted to GWAS SNPs and their LD SNPs (hg19). It can be 'dbSNP_Common', that is, Common SNPs from dbSNP (version 146) plus GWAS SNPs and their LD SNPs (hg19). Alternatively, the user can specify the customised input. To do so, first save your RData file (containing an GR object) into your local computer, and make sure the GR object content names refer to dbSNP IDs. Then, tell "GR.SNP" with your RData file name (with or without extension), plus specify your file RData path in "RData.location". Note: you can also load your customised GR object directly
+#' @param GR.Gene the genomic regions of genes. By default, it is 'UCSC_knownGene', that is, UCSC known genes (together with genomic locations) based on human genome assembly hg19. It can be 'UCSC_knownCanonical', that is, UCSC known canonical genes (together with genomic locations) based on human genome assembly hg19. Alternatively, the user can specify the customised input. To do so, first save your RData file (containing an GR object) into your local computer, and make sure the GR object content names refer to Gene Symbols. Then, tell "GR.Gene" with your RData file name (with or without extension), plus specify your file RData path in "RData.location". Note: you can also load your customised GR object directly
 #' @param cdf.function a character specifying a Cumulative Distribution Function (cdf). It can be one of 'exponential' based on exponential cdf, 'empirical' for empirical cdf
 #' @param verbose logical to indicate whether the messages will be displayed in the screen. By default, it sets to true for display
 #' @param placeholder the characters to tell the location of built-in RData files. See \code{\link{oRDS}} for details
@@ -31,7 +32,7 @@
 #' df_cGenes <- oSNP2cGenes(data, include.RGB="PCHiC_PMID27863249_Monocytes", placeholder=placeholder)
 #' }
 
-oSNP2cGenes <- function(data, entity=c("SNP","chr:start-end","data.frame","bed","GRanges"), include.RGB=NA, GR.SNP=c("dbSNP_GWAS","dbSNP_Common"), cdf.function=c("empirical","exponential"), verbose=TRUE, placeholder=NULL, guid=NULL)
+oSNP2cGenes <- function(data, entity=c("SNP","chr:start-end","data.frame","bed","GRanges"), include.RGB=NA, GR.SNP=c("dbSNP_GWAS","dbSNP_Common"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), cdf.function=c("empirical","exponential"), verbose=TRUE, placeholder=NULL, guid=NULL)
 {
 
     ## match.arg matches arg against a table of candidate values as specified by choices, where NULL means to take the first one
@@ -52,7 +53,31 @@ oSNP2cGenes <- function(data, entity=c("SNP","chr:start-end","data.frame","bed",
 	##################
 		
 	## only data
-	df_data <- oDefineRGB(data=data, entity=entity, include.RGB=include.RGB, GR.SNP=GR.SNP, verbose=verbose, placeholder=placeholder, guid=guid)
+	if(0){
+		# Previously (functional)
+		df_data <- oDefineRGB(data=data, entity=entity, include.RGB=include.RGB, GR.SNP=GR.SNP, verbose=verbose, placeholder=placeholder, guid=guid)
+	
+	}else{
+		#########################################################
+		# NOW (functionally similar to the above)
+		# avoid the reuse of oDefineRGB running twice
+		nodes_gr <- oGR(data=df_FTS[,1], format="chr:start-end", verbose=verbose, placeholder=placeholder, guid=guid)
+				
+		data_gr <- oSNPlocations(data, GR.SNP=GR.SNP, verbose=verbose, placeholder=placeholder, guid=guid)
+				
+		maxgap <- -1L
+		minoverlap <- 0L
+		subject <- nodes_gr
+		query <- data_gr
+		q2r <- GenomicRanges::findOverlaps(query=query, subject=subject, maxgap=maxgap, minoverlap=minoverlap, type="any", select="all", ignore.strand=TRUE) %>% as.data.frame()
+
+		res_df <- tibble::tibble(SNP=names(data_gr)[q2r[,1]], GR=names(nodes_gr)[q2r[,2]])
+		
+		GR <- Gene <- Context <- SNP <- Score <- NULL
+		
+		df_data <- res_df %>% dplyr::inner_join(df_FTS, by='GR') %>% dplyr::transmute(GR=GR, Gene=Gene, Score=Score, Context=Context, SNP=SNP)
+		#########################################################
+	}
 	
 	GR <- Gene <- uid <- SNP <- Score <- Weight <- NULL
 	
@@ -126,11 +151,29 @@ oSNP2cGenes <- function(data, entity=c("SNP","chr:start-end","data.frame","bed",
 	
 	####################################
 	# only keep those genes with GeneID
+	# only keep those genes with genomic positions
 	####################################
 	if(!is.null(df_cGenes)){
-		ind <- oSymbol2GeneID(df_cGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
-		df_cGenes <- df_cGenes[!is.na(ind), ] %>% as.data.frame()
+		#ind <- oSymbol2GeneID(df_cGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
+		#df_cGenes <- df_cGenes[!is.na(ind), ] %>% as.data.frame()
 		
+		##########################
+		if(is(GR.Gene,"GRanges")){
+			gr_Gene <- GR.Gene
+		}else{
+			gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
+			if(is.null(gr_Gene)){
+				GR.Gene <- "UCSC_knownGene"
+				if(verbose){
+					message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
+				}
+				gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
+			}
+		}
+		##########################
+		ind <- match(df_cGenes$Gene, names(gr_Gene))
+		df_cGenes <- df_cGenes[!is.na(ind), ] %>% as.data.frame()
+				
 		if(nrow(df_cGenes)==0){
 			df_cGenes <- NULL
 		}else{

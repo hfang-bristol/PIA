@@ -8,6 +8,7 @@ oSNP2eGenes(
 data,
 include.QTL = NA,
 QTL.customised = NULL,
+GR.Gene = c("UCSC_knownGene", "UCSC_knownCanonical"),
 cdf.function = c("empirical", "exponential"),
 plot = FALSE,
 verbose = TRUE,
@@ -32,6 +33,19 @@ even though only one context is input). Alternatively, it can be a file
 containing these 4 columns. It is designed to allow the user analysing
 their eQTL data. This customisation (if provided) will populate
 built-in eQTL data}
+
+\item{GR.Gene}{the genomic regions of genes. By default, it is
+'UCSC_knownGene', that is, UCSC known genes (together with genomic
+locations) based on human genome assembly hg19. It can be
+'UCSC_knownCanonical', that is, UCSC known canonical genes (together
+with genomic locations) based on human genome assembly hg19.
+Alternatively, the user can specify the customised input. To do so,
+first save your RData file (containing an GR object) into your local
+computer, and make sure the GR object content names refer to Gene
+Symbols. Then, tell "GR.Gene" with your RData file name (with or
+without extension), plus specify your file RData path in
+"RData.location". Note: you can also load your customised GR object
+directly}
 
 \item{cdf.function}{a character specifying a Cumulative Distribution
 Function (cdf). It can be one of 'exponential' based on exponential

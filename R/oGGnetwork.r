@@ -19,7 +19,7 @@
 #' @param node.ycoord a vector specifying y coordinates. If NULL, it will be created using igraph::layout_as_tree
 #' @param node.color a character specifying which node attribute used for node coloring
 #' @param node.color.title a character specifying the title for node coloring
-#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta), and "ggplot2" (emulating ggplot2 default color palette). Alternatively, any hyphen-separated HTML color names, e.g. "lightyellow-orange" (by default), "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{http://html-color-codes.info/color-names}
+#' @param colormap short name for the colormap. It can be one of "jet" (jet colormap), "bwr" (blue-white-red colormap), "gbr" (green-black-red colormap), "wyr" (white-yellow-red colormap), "br" (black-red colormap), "yr" (yellow-red colormap), "wb" (white-black colormap), "rainbow" (rainbow colormap, that is, red-yellow-green-cyan-blue-magenta), and "ggplot2" (emulating ggplot2 default color palette). Alternatively, any hyphen-separated HTML color names, e.g. "lightyellow-orange" (by default), "blue-black-yellow", "royalblue-white-sandybrown", "darkgreen-white-darkviolet". A list of standard color names can be found in \url{https://html-color-codes.info/color-names/index.html}
 #' @param ncolors the number of colors specified over the colormap
 #' @param zlim the minimum and maximum values for which colors should be plotted
 #' @param na.color the color for NAs. By default, it is 'grey80'
@@ -74,7 +74,7 @@
 #' # keep nodes with num_approved >=20
 #' dag_ig <- igraph::induced.subgraph(dag, vids=which(V(dag)$num_approved>=20))
 #' # (optional) further restricted to the direct children of the root
-#' root <- dnet::dDAGroot(dag_ig)
+#' root <- oDAGroot(dag_ig)
 #' neighs.out <- igraph::neighborhood(dag_ig, order=1, nodes=root, mode="out")
 #' nodeInduced <- V(dag_ig)[unique(unlist(neighs.out))]$name
 #' dag_ig <- igraph::induced.subgraph(dag_ig, vids=nodeInduced)
@@ -106,7 +106,7 @@
 #' gp + ggnetwork::geom_edges(size=e.size, show.legend=FALSE)
 #' }
 
-oGGnetwork <- function(g, node.label=NULL, label.wrap.width=NULL, label.wrap.lineheight=0.8, node.label.size=NULL, node.label.fontface='plain', node.label.color='steelblue4', node.label.alpha=0.90, node.label.padding=1, node.label.arrow=0.01, node.label.force=1, node.shape=19, node.shape.title=NULL, node.xcoord=NULL, node.ycoord=NULL, node.color=NULL, node.color.title=NULL, colormap='grey-orange-darkred', ncolors=64, zlim=NULL, na.color='grey80', node.color.alpha=0.9, node.size=NULL, node.size.title=NULL, node.size.range=c(1,4), slim=NULL, title='', edge.size=0.5, edge.color="black", edge.color.alpha=0.5, edge.curve=0.1, edge.arrow=2, edge.arrow.gap=0.02, ncolumns=NULL)
+oGGnetwork <- function(g, node.label=NULL, label.wrap.width=NULL, label.wrap.lineheight=0.8, node.label.size=NULL, node.label.fontface='plain', node.label.color='black', node.label.alpha=0.90, node.label.padding=1, node.label.arrow=0.01, node.label.force=1, node.shape=19, node.shape.title=NULL, node.xcoord=NULL, node.ycoord=NULL, node.color=NULL, node.color.title=NULL, colormap='grey-orange-darkred', ncolors=64, zlim=NULL, na.color='grey80', node.color.alpha=0.9, node.size=NULL, node.size.title=NULL, node.size.range=c(2,5), slim=NULL, title='', edge.size=0.5, edge.color="steelblue4", edge.color.alpha=0.5, edge.curve=0.1, edge.arrow=2, edge.arrow.gap=0.02, ncolumns=NULL)
 {
     
    	if(is(g,"igraph")){
@@ -163,7 +163,7 @@ oGGnetwork <- function(g, node.label=NULL, label.wrap.width=NULL, label.wrap.lin
 			if(is.null(node.xcoord) | is.null(node.ycoord)){
 				## layout
 				#glayout <- igraph::layout_with_kk(ig)
-				glayout <- igraph::layout_as_tree(ig,root=dnet::dDAGroot(ig),circular=TRUE,flip.y=TRUE)
+				glayout <- igraph::layout_as_tree(ig,root=oDAGroot(ig),circular=TRUE,flip.y=TRUE)
 				if(all(is.na(glayout))){
 					glayout <- igraph::layout_with_kk(ig)
 				}

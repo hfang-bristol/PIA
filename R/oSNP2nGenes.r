@@ -218,7 +218,9 @@ oSNP2nGenes <- function(data, distance.max=200000, decay.kernel=c("rapid","slow"
 	# only keep those genes with GeneID
 	####################################
 	if(!is.null(df_nGenes)){
-		ind <- oSymbol2GeneID(df_nGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
+		#ind <- oSymbol2GeneID(df_nGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
+		ind <- match(df_nGenes$Gene, names(gr_Gene))
+		
 		df_nGenes <- df_nGenes[!is.na(ind), ]
 		if(nrow(df_nGenes)==0){
 			df_nGenes <- NULL

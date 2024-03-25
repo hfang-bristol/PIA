@@ -5,6 +5,7 @@
 #' @param data an input vector containing SNPs. SNPs should be provided as dbSNP ID (ie starting with rs). Alternatively, they can be in the format of 'chrN:xxx', where N is either 1-22 or X, xxx is number; for example, 'chr16:28525386'
 #' @param include.QTL the eQTL supported currently. By default, it is 'NA' to disable this option. Pre-built eQTL datasets are detailed in \code{\link{oDefineQTL}}
 #' @param QTL.customised a user-input matrix or data frame with 4 columns: 1st column for SNPs/eQTLs, 2nd column for Genes, 3rd for eQTL mapping significance level (p-values or FDR), and 4th for contexts (required even though only one context is input). Alternatively, it can be a file containing these 4 columns. It is designed to allow the user analysing their eQTL data. This customisation (if provided) will populate built-in eQTL data
+#' @param GR.Gene the genomic regions of genes. By default, it is 'UCSC_knownGene', that is, UCSC known genes (together with genomic locations) based on human genome assembly hg19. It can be 'UCSC_knownCanonical', that is, UCSC known canonical genes (together with genomic locations) based on human genome assembly hg19. Alternatively, the user can specify the customised input. To do so, first save your RData file (containing an GR object) into your local computer, and make sure the GR object content names refer to Gene Symbols. Then, tell "GR.Gene" with your RData file name (with or without extension), plus specify your file RData path in "RData.location". Note: you can also load your customised GR object directly
 #' @param cdf.function a character specifying a Cumulative Distribution Function (cdf). It can be one of 'exponential' based on exponential cdf, 'empirical' for empirical cdf
 #' @param plot logical to indicate whether the histogram plot (plus density or CDF plot) should be drawn. By default, it sets to false for no plotting
 #' @param verbose logical to indicate whether the messages will be displayed in the screen. By default, it sets to true for display
@@ -32,7 +33,7 @@
 #' df_eGenes <- oSNP2eGenes(data=AS[,1], include.QTL="JKscience_TS2A")
 #' }
 
-oSNP2eGenes <- function(data, include.QTL=NA, QTL.customised=NULL, cdf.function=c("empirical","exponential"), plot=FALSE, verbose=TRUE, placeholder=NULL, guid=NULL)
+oSNP2eGenes <- function(data, include.QTL=NA, QTL.customised=NULL, GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), cdf.function=c("empirical","exponential"), plot=FALSE, verbose=TRUE, placeholder=NULL, guid=NULL)
 {
 
     ## match.arg matches arg against a table of candidate values as specified by choices, where NULL means to take the first one
@@ -137,10 +138,29 @@ oSNP2eGenes <- function(data, include.QTL=NA, QTL.customised=NULL, cdf.function=
 	
 	####################################
 	# only keep those genes with GeneID
+	# only keep those genes with genomic positions
 	####################################
 	if(!is.null(df_eGenes)){
-		ind <- oSymbol2GeneID(df_eGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
-		df_eGenes <- df_eGenes[!is.na(ind), ]
+		#ind <- oSymbol2GeneID(df_eGenes$Gene, details=FALSE, verbose=verbose, placeholder=placeholder, guid=guid)
+		#df_eGenes <- df_eGenes[!is.na(ind), ]
+		
+		##########################
+		if(is(GR.Gene,"GRanges")){
+			gr_Gene <- GR.Gene
+		}else{
+			gr_Gene <- oRDS(GR.Gene[1], verbose=verbose, placeholder=placeholder, guid=guid)
+			if(is.null(gr_Gene)){
+				GR.Gene <- "UCSC_knownGene"
+				if(verbose){
+					message(sprintf("Instead, %s will be used", GR.Gene), appendLF=TRUE)
+				}
+				gr_Gene <- oRDS(GR.Gene, verbose=verbose, placeholder=placeholder, guid=guid)
+			}
+		}
+		##########################
+		ind <- match(df_eGenes$Gene, names(gr_Gene))
+		df_eGenes <- df_eGenes[!is.na(ind), ] %>% as.data.frame()
+		
 		if(nrow(df_eGenes)==0){
 			df_eGenes <- NULL
 		}

@@ -9,12 +9,12 @@ data,
 include.LD = NA,
 LD.customised = NULL,
 LD.r2 = 0.8,
-significance.threshold = 5e-05,
-score.cap = 10,
-distance.max = 2000,
-decay.kernel = c("slow", "constant", "linear", "rapid"),
+significance.threshold = 5e-08,
+score.cap = 100,
+distance.max = 20000,
+decay.kernel = c("constant", "slow", "linear", "rapid"),
 decay.exponent = 2,
-GR.SNP = c("dbSNP_GWAS", "dbSNP_Common", "dbSNP_Single"),
+GR.SNP = c("dbSNP_Common", "dbSNP_GWAS", "dbSNP_Single"),
 GR.Gene = c("UCSC_knownGene", "UCSC_knownCanonical"),
 include.TAD = c("none", "GM12878", "IMR90", "MSC", "TRO", "H1", "MES",
 "NPC"),
@@ -44,8 +44,6 @@ seeds.inclusive = TRUE,
 normalise = c("laplacian", "row", "column", "none"),
 restart = 0.7,
 normalise.affinity.matrix = c("none", "quantile"),
-parallel = TRUE,
-multicores = NULL,
 verbose = TRUE,
 verbose.details = FALSE,
 placeholder = NULL,
@@ -241,17 +239,6 @@ walk (RW)}
 affinity matrix. It can be 'none' for no normalisation, 'quantile' for
 quantile normalisation to ensure that columns (if multiple) of the
 output affinity matrix have the same quantiles}
-
-\item{parallel}{logical to indicate whether parallel computation with
-multicores is used. By default, it sets to true, but not necessarily
-does so. Partly because parallel backends available will be
-system-specific (now only Linux or Mac OS). Also, it will depend on
-whether these two packages "foreach" and "doMC" have been installed}
-
-\item{multicores}{an integer to specify how many cores will be
-registered as the multicore parallel backend to the 'foreach' package.
-If NULL, it will use a half of cores available in a user's computer.
-This option only works when parallel computation is enabled}
 
 \item{verbose}{logical to indicate whether the messages will be
 displayed in the screen. By default, it sets to true for display}

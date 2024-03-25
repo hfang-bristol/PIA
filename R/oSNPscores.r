@@ -62,7 +62,7 @@ oSNPscores <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signi
 		
 		if (is.vector(data)){
 			pval <- data
-		}else if(is.matrix(data) | is.data.frame(data)){
+		}else if(is(data,'data.frame') | is(data,'matrix') | is(data,'tibble')){
 			data <- as.matrix(data)
 			data_list <- split(x=data[,2], f=as.character(data[,1]))
 			res_list <- lapply(data_list, function(x){
@@ -174,12 +174,16 @@ oSNPscores <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, signi
 		
 	###########################	
 	}else if(!is.null(LD.customised)){
-		if (is.vector(LD.customised)){
+		
+		if(verbose){
+			now <- Sys.time()
+			message(sprintf("Conside LD SNPs based on custimised LD"), appendLF=TRUE)
+		}
+		
+		if(is.vector(LD.customised)){
 			# assume a file
 			LLR <- utils::read.delim(file=LD.customised, header=FALSE, row.names=NULL, stringsAsFactors=FALSE)
-		}else if(is.matrix(LD.customised) | is.data.frame(LD.customised)){
-			LLR <- LD.customised
-		}else if(is(LD.customised,"tbl")){
+		}else if(is(LD.customised,'data.frame') | is(LD.customised,'matrix') | is(LD.customised,'tibble')){
 			LLR <- LD.customised %>% base::as.data.frame()
 		}
 		

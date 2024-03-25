@@ -27,8 +27,6 @@
 #' @param normalise the way to normalise the adjacency matrix of the input graph. It can be 'laplacian' for laplacian normalisation, 'row' for row-wise normalisation, 'column' for column-wise normalisation, or 'none'
 #' @param restart the restart probability used for Random Walk with Restart (RWR). The restart probability takes the value from 0 to 1, controlling the range from the starting nodes/seeds that the walker will explore. The higher the value, the more likely the walker is to visit the nodes centered on the starting nodes. At the extreme when the restart probability is zero, the walker moves freely to the neighbors at each step without restarting from seeds, i.e., following a random walk (RW)
 #' @param normalise.affinity.matrix the way to normalise the output affinity matrix. It can be 'none' for no normalisation, 'quantile' for quantile normalisation to ensure that columns (if multiple) of the output affinity matrix have the same quantiles
-#' @param parallel logical to indicate whether parallel computation with multicores is used. By default, it sets to true, but not necessarily does so. Partly because parallel backends available will be system-specific (now only Linux or Mac OS). Also, it will depend on whether these two packages "foreach" and "doMC" have been installed
-#' @param multicores an integer to specify how many cores will be registered as the multicore parallel backend to the 'foreach' package. If NULL, it will use a half of cores available in a user's computer. This option only works when parallel computation is enabled
 #' @param verbose logical to indicate whether the messages will be displayed in the screen. By default, it sets to true for display
 #' @param verbose.details logical to indicate whether the detailed messages from being-called functions will be displayed in the screen. By default, it sets to FALSE enabling messages 
 #' @param placeholder the characters to tell the location of built-in RData files. See \code{\link{oRDS}} for details
@@ -60,7 +58,7 @@
 #' #ls_pNode <- oPierSNPsAdv(data=AS, include.TAD='GM12878', include.QTL="JKng_mono", include.RGB='Monocytes', network="PCommonsUN_medium", restart=0.7, placeholder=placeholder, QTL.customised='QTL.customised.Artery.txt')
 #' }
 
-oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, significance.threshold=5e-5, score.cap=10, distance.max=2000, decay.kernel=c("slow","constant","linear","rapid"), decay.exponent=2, GR.SNP=c("dbSNP_GWAS","dbSNP_Common","dbSNP_Single"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), include.TAD=c("none","GM12878","IMR90","MSC","TRO","H1","MES","NPC"), include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=c("empirical","exponential"), scoring.scheme=c("max","sum","sequential"), network=c("STRING_highest","STRING_high","STRING_medium","STRING_low","PCommonsUN_high","PCommonsUN_medium","PCommonsDN_high","PCommonsDN_medium","PCommonsDN_Reactome","PCommonsDN_KEGG","PCommonsDN_HumanCyc","PCommonsDN_PID","PCommonsDN_PANTHER","PCommonsDN_ReconX","PCommonsDN_TRANSFAC","PCommonsDN_PhosphoSite","PCommonsDN_CTD", "KEGG","KEGG_metabolism","KEGG_genetic","KEGG_environmental","KEGG_cellular","KEGG_organismal","KEGG_disease","REACTOME"), STRING.only=c(NA,"neighborhood_score","fusion_score","cooccurence_score","coexpression_score","experimental_score","database_score","textmining_score")[1], weighted=FALSE, network.customised=NULL, seeds.inclusive=TRUE, normalise=c("laplacian","row","column","none"), restart=0.7, normalise.affinity.matrix=c("none","quantile"), parallel=TRUE, multicores=NULL, verbose=TRUE, verbose.details=FALSE, placeholder=NULL, guid=NULL)
+oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, significance.threshold=5e-8, score.cap=100, distance.max=20000, decay.kernel=c("constant","slow","linear","rapid"), decay.exponent=2, GR.SNP=c("dbSNP_Common","dbSNP_GWAS","dbSNP_Single"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), include.TAD=c("none","GM12878","IMR90","MSC","TRO","H1","MES","NPC"), include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=c("empirical","exponential"), scoring.scheme=c("max","sum","sequential"), network=c("STRING_highest","STRING_high","STRING_medium","STRING_low","PCommonsUN_high","PCommonsUN_medium","PCommonsDN_high","PCommonsDN_medium","PCommonsDN_Reactome","PCommonsDN_KEGG","PCommonsDN_HumanCyc","PCommonsDN_PID","PCommonsDN_PANTHER","PCommonsDN_ReconX","PCommonsDN_TRANSFAC","PCommonsDN_PhosphoSite","PCommonsDN_CTD", "KEGG","KEGG_metabolism","KEGG_genetic","KEGG_environmental","KEGG_cellular","KEGG_organismal","KEGG_disease","REACTOME"), STRING.only=c(NA,"neighborhood_score","fusion_score","cooccurence_score","coexpression_score","experimental_score","database_score","textmining_score")[1], weighted=FALSE, network.customised=NULL, seeds.inclusive=TRUE, normalise=c("laplacian","row","column","none"), restart=0.7, normalise.affinity.matrix=c("none","quantile"), verbose=TRUE, verbose.details=FALSE, placeholder=NULL, guid=NULL)
 {
 
     startT <- Sys.time()
@@ -87,7 +85,7 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
 		message(sprintf("Preparing the distance predictor (%s) ...", as.character(Sys.time())), appendLF=TRUE)
 	}
 	relative.importance <- c(1,0,0)
-    pNode_distance <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.TAD=include.TAD, include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose.details, placeholder=placeholder, guid=guid)
+    pNode_distance <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.TAD=include.TAD, include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
     ls_pNode_distance <- list(pNode_distance)
     names(ls_pNode_distance) <- paste('nGene_', distance.max, '_', decay.kernel, sep='')
     
@@ -100,10 +98,10 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
 		names(include.QTLs) <- include.QTLs
 		ls_pNode_eQTL <- pbapply::pblapply(include.QTLs, function(x){
 			if(verbose){
-				message(sprintf("Preparing the eQTL predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
+				message(sprintf("\nPreparing the eQTL predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
 			}
 			relative.importance <- c(0,1,0)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=x, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose.details, placeholder=placeholder, guid=guid)
+			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=x, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
 			if(verbose & is.null(pNode)){
 				message(sprintf("\tNote: this predictor '%s' is NULL", x))
 			}
@@ -122,7 +120,7 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
 			# assume a file
 			df <- utils::read.delim(file=QTL.customised, header=TRUE, row.names=NULL, stringsAsFactors=FALSE)
 		}else if(is.matrix(QTL.customised) | is.data.frame(QTL.customised)){
-			df <- QTL.customised
+			df <- QTL.customised %>% as.data.frame()
 		}
 		
 		if(!is.null(df)){
@@ -141,10 +139,10 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
 		ls_df <- split(x=df_SGS_customised, f=df_SGS_customised$Context)
 		ls_pNode_eQTL_customised <- pbapply::pblapply(1:length(ls_df), function(i){
 			if(verbose){
-				message(sprintf("Preparing the customised eQTL predictor '%s' (%s) ...", names(ls_df)[i], as.character(Sys.time())), appendLF=TRUE)
+				message(sprintf("\nPreparing the customised eQTL predictor '%s' (%s) ...", names(ls_df)[i], as.character(Sys.time())), appendLF=TRUE)
 			}
 			relative.importance <- c(0,1,0)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=ls_df[[i]], include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose.details, placeholder=placeholder, guid=guid)
+			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=ls_df[[i]], include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
 			if(verbose & is.null(pNode)){
 				message(sprintf("\tNote: this predictor '%s' is NULL", names(ls_df)[i]), appendLF=TRUE)
 			}
@@ -161,10 +159,10 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
 		names(include.RGBs) <- include.RGBs
 		ls_pNode_HiC <- pbapply::pblapply(include.RGBs, function(x){
 			if(verbose){
-				message(sprintf("Preparing the HiC predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
+				message(sprintf("\nPreparing the HiC predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
 			}
 			relative.importance <- c(0,0,1)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=NULL, include.RGB=x, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose.details, placeholder=placeholder, guid=guid)
+			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=NULL, include.RGB=x, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
 			if(verbose & is.null(pNode)){
 				message(sprintf("\tNote: this predictor '%s' has NULL", x), appendLF=TRUE)
 			}
@@ -178,7 +176,7 @@ oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, sig
     ##########################################################################################
     ## prioritisation equally
     #relative.importance <- c(1/3,1/3,1/3)
-    #pNode_all <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=include.QTLs, QTL.customised=NULL, include.RGB=include.RGBs, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, parallel=parallel, multicores=multicores, verbose=verbose, placeholder=placeholder, guid=guid)
+    #pNode_all <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=include.QTLs, QTL.customised=NULL, include.RGB=include.RGBs, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose, placeholder=placeholder, guid=guid)
     ##########################################################################################
     ls_pNode <- c(ls_pNode_distance, ls_pNode_eQTL, ls_pNode_HiC)
     

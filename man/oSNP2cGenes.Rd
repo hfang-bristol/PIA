@@ -9,6 +9,7 @@ data,
 entity = c("SNP", "chr:start-end", "data.frame", "bed", "GRanges"),
 include.RGB = NA,
 GR.SNP = c("dbSNP_GWAS", "dbSNP_Common"),
+GR.Gene = c("UCSC_knownGene", "UCSC_knownCanonical"),
 cdf.function = c("empirical", "exponential"),
 verbose = TRUE,
 placeholder = NULL,
@@ -40,6 +41,19 @@ Common SNPs from dbSNP (version 146) plus GWAS SNPs and their LD SNPs
 so, first save your RData file (containing an GR object) into your
 local computer, and make sure the GR object content names refer to
 dbSNP IDs. Then, tell "GR.SNP" with your RData file name (with or
+without extension), plus specify your file RData path in
+"RData.location". Note: you can also load your customised GR object
+directly}
+
+\item{GR.Gene}{the genomic regions of genes. By default, it is
+'UCSC_knownGene', that is, UCSC known genes (together with genomic
+locations) based on human genome assembly hg19. It can be
+'UCSC_knownCanonical', that is, UCSC known canonical genes (together
+with genomic locations) based on human genome assembly hg19.
+Alternatively, the user can specify the customised input. To do so,
+first save your RData file (containing an GR object) into your local
+computer, and make sure the GR object content names refer to Gene
+Symbols. Then, tell "GR.Gene" with your RData file name (with or
 without extension), plus specify your file RData path in
 "RData.location". Note: you can also load your customised GR object
 directly}

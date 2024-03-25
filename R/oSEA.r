@@ -98,7 +98,7 @@
 #' gp1 + theme(legend.box='vertical') + guides(edge_colour=guide_legend('namespace',direction="vertical"), size=guide_legend('-log10(FDR)','top',direction="horizontal",ncol=3), color=guide_colorbar('Z-score','top',direction="horizontal",barheight=0.5)) + theme(legend.position='right')
 #' }
 
-oSEA <- function(data, set, ig=NULL, background=NULL, size.range=c(10,2000), min.overlap=5, which.distance=NULL, test=c("fisher","hypergeo","binomial"), background.annotatable.only=NULL, p.tail=c("one-tail","two-tails"), p.adjust.method=c("BH", "BY", "bonferroni", "holm", "hochberg", "hommel"), ontology.algorithm=c("none","pc","elim","lea"), elim.pvalue=1e-2, lea.depth=2, path.mode=c("all_paths","shortest_paths","all_shortest_paths"), true.path.rule=FALSE, verbose=TRUE)
+oSEA <- function(data, set, ig=NULL, background=NULL, size.range=c(10,2000), min.overlap=3, which.distance=NULL, test=c("fisher","hypergeo","binomial"), background.annotatable.only=NULL, p.tail=c("one-tail","two-tails"), p.adjust.method=c("BH", "BY", "bonferroni", "holm", "hochberg", "hommel"), ontology.algorithm=c("none","pc","elim","lea"), elim.pvalue=1e-2, lea.depth=2, path.mode=c("all_paths","shortest_paths","all_shortest_paths"), true.path.rule=FALSE, verbose=TRUE)
 {
 
   ####################################################################################
@@ -532,7 +532,7 @@ oSEA <- function(data, set, ig=NULL, background=NULL, size.range=c(10,2000), min
             message(sprintf("\tThere are %d terms being used", length(V(subg))), appendLF=TRUE)
         }
         
-        level2node <- dnet::dDAGlevel(subg, level.mode="longest_path", return.mode="level2node")
+        level2node <- oDAGlevel(subg, level.mode="longest_path", return.mode="level2node")
         
         ## build a hash environment from the named list "level2node"
         ## level2node.Hash: key (level), value (a list of nodes/terms)
@@ -638,7 +638,7 @@ oSEA <- function(data, set, ig=NULL, background=NULL, size.range=c(10,2000), min
             }
             
             ## the root always has p-value=1 and z-score=0
-            root <- dnet::dDAGroot(subg)
+            root <- oDAGroot(subg)
             assign(root, 1, envir=node2pval.Hash)
             assign(root, 0, envir=node2zscore.Hash)
         
